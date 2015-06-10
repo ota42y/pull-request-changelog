@@ -1,0 +1,4 @@
+gom 'github.com/google/go-github/github'
+gom 'github.com/google/go-querystring/query'
+gom 'golang.org/x/net/context'
+gom 'golang.org/x/oauth2'
