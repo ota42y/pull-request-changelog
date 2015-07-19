@@ -3,41 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+	"os"
 )
-
-// create struct for the token source
-type tokenSource struct {
-	token *oauth2.Token
-}
-
-// add Token() method to satisfy oauth2.TokenSource interface
-func (t *tokenSource) Token() (*oauth2.Token, error) {
-	return t.token, nil
-}
-
-func getPullRequestData(numbers []int, data *repositoryData, token string) []*github.PullRequest {
-	ts := &tokenSource{
-		&oauth2.Token{AccessToken: token},
-	}
-
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	client := github.NewClient(tc)
-
-	var pls []*github.PullRequest
-	for _, number := range numbers {
-		repos, _, err := client.PullRequests.Get(data.owner, data.repository, number)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			pls = append(pls, repos)
-		}
-	}
-
-	return pls
-}
 
 func main() {
 	var remote string
@@ -56,15 +23,23 @@ func main() {
 
 	flag.Parse()
 
+	if token == "" {
+		fmt.Println("need github api token")
+		os.Exit(1)
+	}
+
 	nums, _ := getAllPullRequestNumbers(start, end)
-	data, _ := getRepositoryData(remote)
-	pr := getPullRequestData(nums, data, token)
+	repo, _ := getRepositoryData(remote)
+	pr, err := getPullRequestData(nums, repo, token)
 
-	for _, p := range pr {
-		num := *p.Number
-		title := *p.Title
-		line := fmt.Sprintf("- [#%d](https://github.com/%s/%s/pull/%d) %s", num, data.owner, data.repository, num, title)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-		fmt.Println(line)
+	err = outputPullRequest(pr, repo)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

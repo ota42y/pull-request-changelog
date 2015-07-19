@@ -53,8 +53,6 @@ ota42y  git://github.com/ota42y/plaintodo.git (push)
 	})
 }
 
-
-
 func TestParsePullRequestNumbers(t *testing.T) {
 	Convey("correct", t, func() {
 		testData := `aebddf11960f5fa4e16c3f9bf3ce3dc4674418cc Merge pull request #42 from ota42y/feature/version_up
