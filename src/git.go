@@ -1,13 +1,13 @@
 package main
 
 import (
-	"strconv"
 	"bufio"
 	"bytes"
 	"fmt"
 	"io"
 	"os/exec"
 	"regexp"
+	"strconv"
 )
 
 type repositoryData struct {
@@ -84,5 +84,4 @@ func parsePullRequestNumbers(input io.Reader) ([]int, error) {
 		}
 	}
 	return nums, nil
-
 }
