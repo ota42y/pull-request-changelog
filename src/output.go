@@ -1,17 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"text/template"
+
 	"github.com/google/go-github/github"
 )
 
-func outputPullRequest(pr []*github.PullRequest, repo *repositoryData) error {
-	for _, p := range pr {
-		num := *p.Number
-		title := *p.Title
-		line := fmt.Sprintf("- [#%d](https://github.com/%s/%s/pull/%d) %s", num, repo.owner, repo.repository, num, title)
+const defaultTemplate = `{{range $p := .Pr}}- [#{{$p.Number}}](https://github.com/.Repo.owner/.Repo.repository/pull/{{$p.Number}}) {{$p.Title}}
+{{end}}`
 
-		fmt.Println(line)
+type templateData struct {
+	Pr   []*github.PullRequest
+	Repo *repositoryData
+}
+
+func outputPullRequest(pr []*github.PullRequest, repo *repositoryData) error {
+	data := &templateData{
+		Pr:   pr,
+		Repo: repo,
 	}
-	return nil
+
+	tp := template.Must(template.New("changelogTemplate").Parse(defaultTemplate))
+	err := tp.Execute(os.Stdout, data)
+	return err
 }
