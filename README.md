@@ -47,6 +47,23 @@ If Github change merge commit message format, this will come not to do.
 
 
 # How to build
+```
 cd src
 gom install
 gom build
+```
+
+## Change default template
+
+```
+go get -u github.com/jteeuwen/go-bindata/...
+
+# fix src/template.tpl
+
+cd src
+go-bindata template.tpl
+gom install
+gom build
+
+```
+
