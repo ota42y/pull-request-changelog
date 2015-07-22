@@ -21,7 +21,12 @@ func outputPullRequest(pr []*github.PullRequest, repo *repositoryData) error {
 		Repo: repo,
 	}
 
-	tp := template.Must(template.New("changelogTemplate").Parse(defaultTemplate))
-	err := tp.Execute(os.Stdout, data)
+	tpl, err := Asset("template.tpl")
+	if err != nil {
+		return err
+	}
+
+	tp := template.Must(template.New("changelogTemplate").Parse(string(tpl)))
+	err = tp.Execute(os.Stdout, data)
 	return err
 }
