@@ -21,6 +21,9 @@ func main() {
 	var end string
 	flag.StringVar(&end, "end", "origin/master", "newest commit setting (default: origin/master)")
 
+	var templateFile string
+	flag.StringVar(&templateFile, "file", "", "template file (default: embended template")
+
 	flag.Parse()
 
 	if token == "" {
@@ -37,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = outputPullRequest(pr, repo)
+	err = outputPullRequest(pr, repo, templateFile)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
