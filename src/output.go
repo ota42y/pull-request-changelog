@@ -1,32 +1,47 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"text/template"
 
 	"github.com/google/go-github/github"
 )
 
-const defaultTemplate = `{{range $p := .Pr}}- [#{{$p.Number}}](https://github.com/.Repo.owner/.Repo.repository/pull/{{$p.Number}}) {{$p.Title}}
-{{end}}`
-
 type templateData struct {
 	Pr   []*github.PullRequest
 	Repo *repositoryData
 }
 
-func outputPullRequest(pr []*github.PullRequest, repo *repositoryData) error {
-	data := &templateData{
-		Pr:   pr,
-		Repo: repo,
+func getTemplate(templateFile string) (string, error) {
+	if templateFile != "" {
+		buf, err := ioutil.ReadFile(templateFile)
+		if err != nil {
+			return "", err
+		}
+
+		return string(buf), nil
 	}
 
 	tpl, err := Asset("template.tpl")
 	if err != nil {
+		return "", err
+	}
+
+	return string(tpl), nil
+}
+
+func outputPullRequest(pr []*github.PullRequest, repo *repositoryData, templateFile string) error {
+	data := &templateData{
+		Pr:   pr,
+		Repo: repo,
+	}
+	templateString, err := getTemplate(templateFile)
+	if err != nil {
 		return err
 	}
 
-	tp := template.Must(template.New("changelogTemplate").Parse(string(tpl)))
+	tp := template.Must(template.New("changelogTemplate").Parse(templateString))
 	err = tp.Execute(os.Stdout, data)
 	return err
 }
